@@ -1,0 +1,15 @@
+Dockerfile
+.dockerignore
+.editorconfig
+.env
+.gitignore
+.python-version
+.git/
+.poetry/
+.venv/
+.vscode/
+README.md
+poetry.lock
+pyproject.toml
+**/*.pyc
+**/__pycache__/

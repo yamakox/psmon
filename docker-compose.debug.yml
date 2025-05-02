@@ -1,0 +1,40 @@
+services:
+
+  app:
+    build:
+      context: .
+      dockerfile: ./Dockerfile.debug
+      args:
+        HOST: 0.0.0.0
+        PORT: 8000
+        DEBUG_PORT: 8001
+    init: true
+    restart: no
+    ports:
+      - ${PORT:-8000}:8000
+      - ${DEBUG_PORT:-8001}:8001
+    environment:
+      INFLUXDB_URL: http://${INFLUXDB_HOST:-influxdb}:${INFLUXDB_PORT:-8086}
+      INFLUXDB_TOKEN: ${INFLUXDB_INIT_ADMIN_TOKEN}
+      INFLUXDB_ORG: ${INFLUXDB_INIT_ORG}
+      INFLUXDB_BUCKET: ${INFLUXDB_INIT_BUCKET}
+    volumes:
+      - ./:/opt/app
+
+  influxdb:
+    image: influxdb:2
+    container_name: influxdb
+    ports:
+      - ${INFLUXDB_PORT:-8086}:8086
+    volumes:
+      - influxdb-data:/var/lib/influxdb2
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: ${INFLUXDB_INIT_MODE:-setup}
+      DOCKER_INFLUXDB_INIT_USERNAME: ${INFLUXDB_INIT_USERNAME:-admin}
+      DOCKER_INFLUXDB_INIT_PASSWORD: ${INFLUXDB_INIT_PASSWORD:-supersecurepassword}
+      DOCKER_INFLUXDB_INIT_ORG: ${INFLUXDB_INIT_ORG:-my-org}
+      DOCKER_INFLUXDB_INIT_BUCKET: ${INFLUXDB_INIT_BUCKET:-system-metrics}
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: ${INFLUXDB_INIT_ADMIN_TOKEN:-my-secret-token}
+
+volumes:
+  influxdb-data:

@@ -1,0 +1,32 @@
+[project]
+name = "psui"
+version = "0.0.1"
+description = "psutil Web UI"
+authors = [
+    {name = "yamakox",email = "yamakox@gmail.com"}
+]
+license = {text = "Apache-2.0"}
+readme = "README.md"
+requires-python = ">=3.10,<4.0"
+dependencies = [
+    "fastapi (>=0.115.12,<0.116.0)",
+    "apscheduler (>=3.11.0,<4.0.0)",
+    "psutil (>=7.0.0,<8.0.0)",
+    "influxdb-client (>=1.48.0,<2.0.0)",
+    "python-dotenv (>=1.1.0,<2.0.0)",
+    "uvicorn (>=0.34.2,<0.35.0)"
+]
+
+[tool.poetry]
+
+[tool.poetry.group.dev.dependencies]
+debugpy = "^1.8.14"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+# 忘れがちだが、以下の行を追加しないとpoetry exportが使えずrequirements.txtを生成できない。
+# 以下の行を追加したら、`poetry install --no-root`を実行すること。
+[tool.poetry.requires-plugins]
+poetry-plugin-export = ">=1.8"

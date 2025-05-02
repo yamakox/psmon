@@ -1,0 +1,21 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Attach for debugging Python",
+      "type": "debugpy",
+      "request": "attach",
+      "connect": {
+        "host": "localhost",
+        "port": 8001
+      },
+      "pathMappings": [
+        {
+            "localRoot": "${workspaceFolder}",
+            "remoteRoot": "/opt/app/"
+        }
+      ],
+      "justMyCode": true
+    }
+  ]
+}
