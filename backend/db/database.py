@@ -2,6 +2,9 @@ from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import SYNCHRONOUS
 from ..config import settings
 import time
+from datetime import datetime
+from dateutil import tz
+from typing import Any
 
 client: InfluxDBClient = None
 
@@ -43,24 +46,25 @@ def write_record(**kwargs):
         )
     )
 
-def get_records():
-    '''DBに保存してあったpsutilのデータを取得する。'''
+def get_records_by_time():
+    '''DBに保存してあったpsutilのデータを時間ごとに取得する。'''
     if not client:
         raise Exception('No database client object.')
     query = f'''
         from(bucket: "{settings.INFLUXDB_BUCKET}")
-        |> range(start: -1h)
+        |> range(start: -3h)
+        |> aggregateWindow(every: 1m, fn: max, createEmpty: false)
         |> filter(fn: (r) => r._measurement == "{_MEASUREMENT}")
-        |> sort(columns: ["_time"])
+        |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
+        |> keep(columns: ["_time", "cpu_percent", "mem_available"])
     '''
     tables = client.query_api().query(query=query)
+    print(f'{tables=}')
     output = []
+    timestamp = datetime.now(tz=tz.UTC)
     for table in tables:
         print(f'{table=}')
         for record in table.records:
-            output.append(dict(
-                time=record.get_time(), 
-                fields=record.get_field(), 
-                value=record.get_value(), 
-            ))
-    return output
+            record['time_delta'] = (record['_time'] - timestamp).total_seconds()
+            output.append(record.values)
+    return timestamp, output

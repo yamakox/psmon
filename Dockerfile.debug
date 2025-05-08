@@ -12,7 +12,8 @@ ENV PORT=$PORT
 ENV DEBUG_PORT=$DEBUG_PORT
 
 WORKDIR "/opt/app"
-COPY ./ ./
+# COPY ./ ./
+COPY ./requirements.txt ./
 
 RUN \
     apk update && \
