@@ -15,6 +15,7 @@ services:
     ports:
       - ${PORT:-8000}:8000
       - ${DEBUG_PORT:-8001}:8001
+      - ${VITE_PORT:-5173}:5173
     environment:
       INFLUXDB_URL: http://${INFLUXDB_HOST:-influxdb}:${INFLUXDB_PORT:-8086}
       INFLUXDB_TOKEN: ${INFLUXDB_INIT_ADMIN_TOKEN}
