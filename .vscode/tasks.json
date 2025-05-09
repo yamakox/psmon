@@ -15,7 +15,15 @@
       "command": "poetry export -f requirements.txt -o ${workspaceFolder}/requirements.txt --without-hashes"
     },
     {
-      "label": "T003: 本番のコンテナ起動",
+      "label": "T003: frontendのビルド(npm run build)",
+      "type":"shell",
+      "options": {
+        "cwd": "${workspaceFolder}/frontend"
+      },
+      "command": "npm i && npm run build"
+    },
+    {
+      "label": "T010: 本番のコンテナ起動",
       "type":"shell",
       "options": {
         "cwd": "${workspaceFolder}"
@@ -23,7 +31,7 @@
       "command": "docker compose -f docker-compose.yml build  && docker compose -f docker-compose.yml up"
     },
     {
-      "label": "T003.1: 本番のappサービスのシェルを開く",
+      "label": "T010.1: 本番のappサービスのシェルを開く",
       "type": "shell",
       "options": {
         "cwd": "${workspaceFolder}"
@@ -31,7 +39,7 @@
       "command": "docker compose -f docker-compose.yml exec -it app sh"
     },
     {
-      "label": "T004: 本番のコンテナ停止",
+      "label": "T011: 本番のコンテナ停止",
       "type":"shell",
       "options": {
         "cwd": "${workspaceFolder}"
@@ -39,7 +47,7 @@
       "command": "docker compose -f docker-compose.yml down # 省略→ --rmi local"
     },
     {
-      "label": "T010: デバッグモードでコンテナ起動",
+      "label": "T020: デバッグモードでコンテナ起動",
       "type":"shell",
       "options": {
         "cwd": "${workspaceFolder}"
@@ -47,7 +55,7 @@
       "command": "docker compose -f docker-compose.debug.yml build  && docker compose -f docker-compose.debug.yml up"
     },
     {
-      "label": "T010.1: デバッグモードのコンテナでVITE起動",
+      "label": "T020.1: デバッグモードのコンテナでVITE起動",
       "type":"shell",
       "options": {
         "cwd": "${workspaceFolder}"
@@ -55,7 +63,7 @@
       "command": "docker compose -f docker-compose.debug.yml exec -it app sh -c \"cd frontend && npm i && npm run dev\""
     },
     {
-      "label": "T010.2: デバッグ中のappサービスのシェルを開く",
+      "label": "T020.2: デバッグ中のappサービスのシェルを開く",
       "type": "shell",
       "options": {
         "cwd": "${workspaceFolder}"
@@ -63,7 +71,7 @@
       "command": "docker compose -f docker-compose.debug.yml exec -it app sh"
     },
     {
-      "label": "T011: デバッグモードのコンテナ停止",
+      "label": "T021: デバッグモードのコンテナ停止",
       "type":"shell",
       "options": {
         "cwd": "${workspaceFolder}"
@@ -71,7 +79,7 @@
       "command": "docker compose -f docker-compose.debug.yml down # 省略→ --rmi local"
     },
     {
-      "label": "T012: デバッグモードでローカル起動",
+      "label": "T022: デバッグモードでローカル起動",
       "type":"shell",
       "options": {
         "cwd": "${workspaceFolder}"
