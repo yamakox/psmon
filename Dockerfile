@@ -5,15 +5,12 @@ FROM python:${PYTHON_VERSION}-alpine${ALPINE_VERSION}
 
 ARG HOST=0.0.0.0
 ARG PORT=8000
-ARG DEBUG_PORT=8001
 
 ENV HOST=$HOST
 ENV PORT=$PORT
-ENV DEBUG_PORT=$DEBUG_PORT
 
 WORKDIR "/opt/app"
-# COPY ./ ./
-COPY ./requirements.txt ./
+COPY ./ ./
 
 RUN \
     apk update && \
@@ -21,17 +18,16 @@ RUN \
         linux-headers build-base autoconf g++ gcc libc-dev make && \
     python3 -m pip install --root-user-action ignore -U pip && \
     pip3 install --root-user-action ignore -r ./requirements.txt && \
-    pip3 install --root-user-action ignore debugpy && \
     apk del .build-deps && \
     apk add npm && \
     ln -fs /usr/share/zoneinfo/Etc/UTC /etc/localtime
 
-#WORKDIR "/opt/app/frontend"
-#RUN \
-#    npm install && \
-#    npm run build
-#WORKDIR "/opt/app"
+WORKDIR "/opt/app/frontend"
+RUN \
+    npm install && \
+    npm run build
+WORKDIR "/opt/app"
 
 # https://docs.docker.com/reference/build-checks/json-args-recommended/
 SHELL ["/bin/sh", "-c"]
-CMD python3 -m debugpy --listen $HOST:$DEBUG_PORT -m uvicorn --host=$HOST --port=$PORT main:app --reload
+CMD python3 -m uvicorn --host=$HOST --port=$PORT main:app --reload

@@ -4,10 +4,19 @@ from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
+from pathlib import Path
+import logging
+from .config import settings
+from .db import database
 from .job.metrics import collect_system_metrics
 from . import api
-from .db import database
-from .config import settings
+from . import frontend
+
+logging.basicConfig(
+    level=logging.DEBUG if settings.APP_DEBUG else logging.INFO, 
+    format="%(asctime)s [%(levelname)s] %(message)s", 
+)
+logging.getLogger("apscheduler").setLevel(logging.WARNING)  # 毎秒ログ出力されるため抑止する
 
 scheduler: BackgroundScheduler = None
 
@@ -29,7 +38,7 @@ async def lifespan(app: FastAPI):
     database.exit()
 
 # MARK: create an app
-def create_app():
+def create_app(base_path: Path) -> FastAPI:
     # Create an application instance
     app = FastAPI(lifespan=lifespan)
 
@@ -47,11 +56,8 @@ def create_app():
     )
 
     # Initialize application instance
-    app.include_router(api.v1.router)
-    app.mount(
-        path='/', 
-        app=StaticFiles(directory='public', html=True), 
-        name='public',
-    )
+    app.include_router(api.v1.create_router(base_path=base_path))
+    app.include_router(frontend.create_router(base_path=base_path))
+
     return app
 

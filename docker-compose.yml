@@ -5,27 +5,21 @@ services:
       - influxdb
     build:
       context: .
-      dockerfile: ./Dockerfile.debug
+      dockerfile: ./Dockerfile
       tags:
-        - "psui-debug:latest"
+        - "psui-release:latest"
       args:
         HOST: 0.0.0.0
         PORT: 8000
-        DEBUG_PORT: 8001
     init: true
     restart: no
     ports:
       - ${PORT:-8000}:8000
-      - ${DEBUG_PORT:-8001}:8001
-      - ${VITE_PORT:-5173}:5173
     environment:
-      APP_DEBUG: 1
       INFLUXDB_URL: http://${INFLUXDB_HOST:-influxdb}:${INFLUXDB_PORT:-8086}
       INFLUXDB_TOKEN: ${INFLUXDB_INIT_ADMIN_TOKEN}
       INFLUXDB_ORG: ${INFLUXDB_INIT_ORG}
       INFLUXDB_BUCKET: ${INFLUXDB_INIT_BUCKET}
-    volumes:
-      - ./:/opt/app
 
   influxdb:
     image: influxdb:2
