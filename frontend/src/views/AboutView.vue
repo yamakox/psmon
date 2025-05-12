@@ -10,8 +10,6 @@
     min-height: 100vh;
     display: flex;
     align-items: center;
-    color: blue;
-    background-color: #88ffaa;
   }
 }
 </style>
