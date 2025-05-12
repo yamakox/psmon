@@ -4,6 +4,7 @@ import os
 
 load_dotenv()
 
+PORT = int(os.environ.get('PORT', 8000))
 APP_DEBUG = int(os.environ.get('APP_DEBUG', "0"))
 INFLUXDB_URL = os.environ.get('INFLUXDB_URL', 'http://localhost:8086')
 INFLUXDB_TOKEN = os.environ.get('INFLUXDB_TOKEN', 'my-secret-token')

@@ -5,18 +5,11 @@ from contextlib import asynccontextmanager
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 from pathlib import Path
-import logging
-from .config import settings
+from .common import settings
 from .db import database
 from .job.metrics import collect_system_metrics
 from . import api
 from . import frontend
-
-logging.basicConfig(
-    level=logging.DEBUG if settings.APP_DEBUG else logging.INFO, 
-    format="%(asctime)s [%(levelname)s] %(message)s", 
-)
-logging.getLogger("apscheduler").setLevel(logging.WARNING)  # 毎秒ログ出力されるため抑止する
 
 scheduler: BackgroundScheduler = None
 

@@ -1,6 +1,6 @@
 from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import SYNCHRONOUS
-from ..config import settings
+from ..common import settings
 import time
 from datetime import datetime
 from dateutil import tz
