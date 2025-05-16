@@ -6,11 +6,12 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: '/', // NOTE: Vue RouterのcreateWebHistoryで用いられるベースパスはここで設定する。(例: /app/ など)
   server: {
     host: true,
     hmr: {
-      host: 'localhost'
-    }
+      host: 'localhost',
+    },
   },
   plugins: [
     vue({
@@ -30,7 +31,10 @@ export default defineConfig({
   resolve: {
     alias: {
       // エイリアス'@'はjsやvueのimportでのみ有効。htmlでは`/src/...`と書くこと。
-      '@': fileURLToPath(new URL('./src', import.meta.url))
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
+  },
+  define: {
+    global: 'window',
   },
 })

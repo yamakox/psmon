@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import TheWelcome from '../components/TheWelcome.vue'
+import HelloWorld from '../components/HelloWorld.vue'
+import Plotly from '../components/Plotly.vue'
 </script>
 
 <template>
   <main>
-    <TheWelcome />
+    <HelloWorld />
+    <Plotly />
   </main>
 </template>
