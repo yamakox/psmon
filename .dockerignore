@@ -8,9 +8,7 @@ Dockerfile
 .poetry/
 .venv/
 .vscode/
-README.md
 poetry.lock
-pyproject.toml
 **/*.pyc
 **/__pycache__/
 **/node_modules/

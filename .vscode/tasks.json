@@ -3,20 +3,23 @@
   "tasks": [
     {
       "label": "T001: poetry install --no-root",
-      "type":"shell",
+      "type": "shell",
       "options": {
         "cwd": "${workspaceFolder}"
       },
       "command": "poetry install --no-root"
     },
     {
-      "label": "T002: requirements.txtへ出力",
-      "type":"shell",
-      "command": "poetry export -f requirements.txt -o ${workspaceFolder}/requirements.txt --without-hashes"
+      "label": "T002: poetry lock",
+      "type": "shell",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "command": "poetry lock"
     },
     {
-      "label": "T003: frontendのビルド(npm run build)",
-      "type":"shell",
+      "label": "T003: frontendのビルド(npm run build)→./public/へ出力",
+      "type": "shell",
       "options": {
         "cwd": "${workspaceFolder}/frontend"
       },
@@ -24,7 +27,7 @@
     },
     {
       "label": "T010: 本番のコンテナ起動",
-      "type":"shell",
+      "type": "shell",
       "options": {
         "cwd": "${workspaceFolder}"
       },
@@ -40,7 +43,7 @@
     },
     {
       "label": "T011: 本番のコンテナ停止",
-      "type":"shell",
+      "type": "shell",
       "options": {
         "cwd": "${workspaceFolder}"
       },
@@ -48,7 +51,7 @@
     },
     {
       "label": "T020: デバッグモードでコンテナ起動",
-      "type":"shell",
+      "type": "shell",
       "options": {
         "cwd": "${workspaceFolder}"
       },
@@ -56,7 +59,7 @@
     },
     {
       "label": "T020.1: デバッグモードのコンテナでVITE起動",
-      "type":"shell",
+      "type": "shell",
       "options": {
         "cwd": "${workspaceFolder}"
       },
@@ -72,7 +75,7 @@
     },
     {
       "label": "T021: デバッグモードのコンテナ停止",
-      "type":"shell",
+      "type": "shell",
       "options": {
         "cwd": "${workspaceFolder}"
       },
@@ -80,11 +83,16 @@
     },
     {
       "label": "T022: デバッグモードでローカル起動",
-      "type":"shell",
+      "type": "shell",
       "options": {
         "cwd": "${workspaceFolder}"
       },
       "command": "${workspaceFolder}/.venv/bin/python3 -m debugpy --listen localhost:8001 -m uvicorn --host=localhost --port=8000 main:app --reload"
+    },
+    {
+      "label": "T901: (参考)requirements.txtへ出力",
+      "type": "shell",
+      "command": "poetry export -f requirements.txt -o ${workspaceFolder}/requirements.txt --without-hashes"
     }
   ]
 }

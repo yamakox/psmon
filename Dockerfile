@@ -1,4 +1,4 @@
-ARG PYTHON_VERSION=3.10
+ARG PYTHON_VERSION=3.12
 ARG ALPINE_VERSION=3.21
 
 FROM python:${PYTHON_VERSION}-alpine${ALPINE_VERSION}
@@ -16,8 +16,10 @@ RUN \
     apk update && \
     apk add --no-cache --virtual .build-deps \
         linux-headers build-base autoconf g++ gcc libc-dev make && \
-    python3 -m pip install --root-user-action ignore -U pip && \
-    pip3 install --root-user-action ignore -r ./requirements.txt && \
+    python3 -m pip install --root-user-action ignore -U pip setuptools && \
+    pip3 install --root-user-action ignore poetry && \
+    poetry config virtualenvs.create false && \
+    poetry install --no-root --without dev && \
     apk del .build-deps && \
     apk add npm && \
     ln -fs /usr/share/zoneinfo/Etc/UTC /etc/localtime
