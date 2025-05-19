@@ -27,6 +27,7 @@ export default defineConfig({
   build: {
     outDir: fileURLToPath(new URL('../public', import.meta.url)),
     emptyOutDir: true,
+    chunkSizeWarningLimit: 1024 * 1024 * 10, // 10MiB
   },
   resolve: {
     alias: {

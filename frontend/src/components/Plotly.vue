@@ -1,28 +1,48 @@
 <script setup lang="ts">
-import { ref, onMounted, type Ref } from 'vue'
+import { ref, onMounted, watch } from 'vue'
+import Plotly from 'plotly.js-dist'
+import axios from 'axios'
 
-const plot: Ref<HTMLDivElement | undefined> = ref<HTMLDivElement>()
+const props = defineProps<{
+  data?: Plotly.Data
+  layout?: Partial<Plotly.Layout>
+}>()
 
-onMounted(() => {
-  if (!plot.value) {
+const rootRef = ref<HTMLDivElement>()
+const plotlyElement = ref<Plotly.PlotlyHTMLElement>()
+
+async function setupPlotly() {
+  if (!plotlyElement.value) {
+    if (!rootRef.value) {
+      return
+    }
+    if (props.data && props.layout) {
+      plotlyElement.value = await Plotly.newPlot(rootRef.value, [props.data], props.layout)
+    }
     return
   }
-  Plotly.newPlot(plot.value, [
-    {
-      x: [1, 2, 3, 4, 5],
-      y: [1, 2, 3, 4, 5],
-    },
-  ])
+  if (props.data && props.layout) {
+    await Plotly.update(plotlyElement.value, props.data, props.layout)
+  } else {
+    console.error('No data or layout')
+  }
+}
+
+watch(props, async () => {
+  await setupPlotly()
+})
+
+watch(rootRef, async () => {
+  await setupPlotly()
+})
+
+onMounted(async () => {
+  await setupPlotly()
 })
 </script>
 
 <template>
-  <div class="plot" ref="plot" />
+  <div ref="rootRef" />
 </template>
 
-<style scoped>
-.plot {
-  width: 100%;
-  height: 100%;
-}
-</style>
+<style scoped></style>
