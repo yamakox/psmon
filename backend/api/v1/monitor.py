@@ -11,19 +11,25 @@ from ...job import metrics
 class MonitorRecord(BaseModel):
     # time: datetime = Field(..., alias='_time')
     time_delta: float
-    cpu_percent: float|None = None
-    mem_available: float|None = None
+    cpu_percent_max: float|None = None
+    cpu_percent_mean: float|None = None
+    mem_available_max: float|None = None
+    mem_available_mean: float|None = None
+    disk_used_max: float|None = None
+    disk_used_mean: float|None = None
 
 # MARK: MonitorResponse
 class MonitorResponse(BaseModel):
     timestamp: datetime
     mem_total: float
+    disk_total: float
     records: list[MonitorRecord] = []
 
 # MARK: MonitorResponseCompact
 class MonitorResponseCompact(BaseModel):
     timestamp: datetime
     mem_total: float
+    disk_total: float
     records: dict[str, list[datetime|float|None]]
 
 def create_router(base_path: Path) -> APIRouter:
@@ -40,6 +46,7 @@ def create_router(base_path: Path) -> APIRouter:
         return MonitorResponse(
             timestamp=timestamp, 
             mem_total=metrics.get_mem_total(), 
+            disk_total=metrics.get_disk_total(), 
             records=records, 
         )
 
@@ -53,6 +60,7 @@ def create_router(base_path: Path) -> APIRouter:
         _res = MonitorResponse(
             timestamp=timestamp, 
             mem_total=metrics.get_mem_total(), 
+            disk_total=metrics.get_disk_total(), 
             records=_records, 
         )
 
@@ -62,7 +70,8 @@ def create_router(base_path: Path) -> APIRouter:
                 records[key].append(getattr(record, key))
         return MonitorResponseCompact(
             timestamp=timestamp, 
-            mem_total=metrics.get_mem_total(), 
+            mem_total=_res.mem_total, 
+            disk_total=_res.disk_total, 
             records=records, 
         )
 

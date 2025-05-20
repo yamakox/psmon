@@ -11,11 +11,18 @@
       },
       "pathMappings": [
         {
-            "localRoot": "${workspaceFolder}",
-            "remoteRoot": "/opt/app/"
+          "localRoot": "${workspaceFolder}",
+          "remoteRoot": "/opt/app/"
         }
       ],
       "justMyCode": true
+    },
+    {
+      "name": "Launch Chrome and open localhost:5173",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:5173",
+      "webRoot": "${workspaceFolder}/frontend"
     }
   ]
 }

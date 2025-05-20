@@ -1,5 +1,6 @@
-from influxdb_client import InfluxDBClient, Point
+from influxdb_client import InfluxDBClient
 from influxdb_client.client.write_api import SYNCHRONOUS
+from influxdb_client.client.flux_table import TableList
 from ..common import settings
 import time
 from datetime import datetime
@@ -50,21 +51,49 @@ def get_records_by_time():
     '''DBに保存してあったpsutilのデータを時間ごとに取得する。'''
     if not client:
         raise Exception('No database client object.')
-    query = f'''
-        from(bucket: "{settings.INFLUXDB_BUCKET}")
-        |> range(start: -3h)
-        |> aggregateWindow(every: 1m, fn: max, createEmpty: false)
-        |> filter(fn: (r) => r._measurement == "{_MEASUREMENT}")
-        |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
-        |> keep(columns: ["_time", "cpu_percent", "mem_available"])
-    '''
+    query = _generate_flux_query(
+        fields=['cpu_percent', 'mem_available', 'disk_used'], 
+        start='-6h', 
+        every='10s', 
+    )
     tables = client.query_api().query(query=query)
-    print(f'{tables=}')
-    output = []
     timestamp = datetime.now(tz=tz.UTC)
+    output = convert_to_time_delta(timestamp, tables)
+    return timestamp, output
+
+def convert_to_time_delta(timestamp: datetime, tables: TableList) -> list[dict]:
+    output = []
     for table in tables:
-        print(f'{table=}')
         for record in table.records:
             record['time_delta'] = (record['_time'] - timestamp).total_seconds()
             output.append(record.values)
-    return timestamp, output
+    return output
+
+# MARK: subroutines
+
+def _generate_flux_query(fields: list[str],
+                        start: str = "-6h", every: str = "6m") -> str:
+    field_filter = " or ".join([f'r._field == "{field}"' for field in fields])
+    pivot_columns = [f"{field}_max" for field in fields] + [f"{field}_mean" for field in fields]
+    pivot_columns_str = ", ".join([f'"{col}"' for col in pivot_columns])
+
+    query = f'''
+data = from(bucket: "{settings.INFLUXDB_BUCKET}")
+  |> range(start: {start})
+  |> filter(fn: (r) => r._measurement == "{_MEASUREMENT}")
+  |> filter(fn: (r) => {field_filter})
+
+max_data = data
+  |> aggregateWindow(every: {every}, fn: max, createEmpty: false)
+  |> map(fn: (r) => ({{r with _stat: "max"}}))
+
+mean_data = data
+  |> aggregateWindow(every: {every}, fn: mean, createEmpty: false)
+  |> map(fn: (r) => ({{r with _stat: "mean"}}))
+
+union(tables: [max_data, mean_data])
+  |> map(fn: (r) => ({{r with _field: r._field + "_" + r._stat}}))
+  |> pivot(rowKey: ["_time"], columnKey: ["_field"], valueColumn: "_value")
+  |> keep(columns: ["_time", {pivot_columns_str}])
+'''
+    return query

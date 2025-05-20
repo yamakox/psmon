@@ -1,5 +1,4 @@
 services:
-
   app:
     depends_on:
       - influxdb
@@ -16,6 +15,7 @@ services:
     ports:
       - ${PORT:-8000}:8000
     environment:
+      DISK_USAGE_PATH: ${DISK_USAGE_PATH:-/}
       INFLUXDB_URL: http://${INFLUXDB_HOST:-influxdb}:${INFLUXDB_PORT:-8086}
       INFLUXDB_TOKEN: ${INFLUXDB_INIT_ADMIN_TOKEN}
       INFLUXDB_ORG: ${INFLUXDB_INIT_ORG}
