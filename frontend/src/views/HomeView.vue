@@ -4,8 +4,15 @@ import Plotly from 'plotly.js-dist'
 import axios from 'axios'
 import { ref, onMounted } from 'vue'
 
-const cpuPlotRef = ref<InstanceType<typeof PlotlyComponent>>()
-const memPlotRef = ref<InstanceType<typeof PlotlyComponent>>()
+const maxDataCount = 180
+
+const dataSeries = {
+  time: [] as Date[],
+  cpu_percent_max: [] as number[],
+  cpu_percent_mean: [] as number[],
+  mem_available_mean: [] as number[],
+  disk_used_mean: [] as number[],
+}
 
 const cpuData = ref<Plotly.Data[]>([])
 const memData = ref<Plotly.Data[]>([])
@@ -50,16 +57,44 @@ function toTeraBytes(bytes: number) {
 
 async function fetchData() {
   try {
-    const res = await axios.get('http://localhost:8123/api/v1/monitor')
-    const baseTime = new Date(res.data.timestamp).getTime()
-    const timeSeries = res.data.records.time_delta.map(
-      (time: number) => new Date(baseTime + time * 1000),
-    )
+    let mem_total = 0
+    let disk_total = 0
+    const lastTime = dataSeries.time.at(-1)
+    if (lastTime === undefined) {
+      const res = await axios.get('http://localhost:8123/api/v1/monitor')
+      mem_total = res.data.mem_total
+      disk_total = res.data.disk_total
+      const records = res.data.records
+      dataSeries.time = records.time.map((time: string) => new Date(time))
+      dataSeries.cpu_percent_max = records.cpu_percent_max
+      dataSeries.cpu_percent_mean = records.cpu_percent_mean
+      dataSeries.mem_available_mean = records.mem_available_mean
+      dataSeries.disk_used_mean = records.disk_used_mean
+    } else {
+      const res = await axios.get('http://localhost:8123/api/v1/monitor', {
+        params: {
+          start_time: lastTime,
+        },
+      })
+      mem_total = res.data.mem_total
+      disk_total = res.data.disk_total
+      const records = res.data.records
+      dataSeries.time.push(...records.time.map((time: string) => new Date(time)))
+      dataSeries.cpu_percent_max.push(...records.cpu_percent_max)
+      dataSeries.cpu_percent_mean.push(...records.cpu_percent_mean)
+      dataSeries.mem_available_mean.push(...records.mem_available_mean)
+      dataSeries.disk_used_mean.push(...records.disk_used_mean)
+      dataSeries.time = dataSeries.time.slice(-maxDataCount)
+      dataSeries.cpu_percent_max = dataSeries.cpu_percent_max.slice(-maxDataCount)
+      dataSeries.cpu_percent_mean = dataSeries.cpu_percent_mean.slice(-maxDataCount)
+      dataSeries.mem_available_mean = dataSeries.mem_available_mean.slice(-maxDataCount)
+      dataSeries.disk_used_mean = dataSeries.disk_used_mean.slice(-maxDataCount)
+    }
     cpuData.value = [
       {
         name: 'max',
-        x: timeSeries,
-        y: res.data.records.cpu_percent_max,
+        x: dataSeries.time,
+        y: dataSeries.cpu_percent_max,
         type: 'scatter',
         line: { color: 'rgba(0, 0, 255, 0.5)', width: 1 },
         fill: 'tozeroy',
@@ -68,8 +103,8 @@ async function fetchData() {
       },
       {
         text: 'mean',
-        x: timeSeries,
-        y: res.data.records.cpu_percent_mean,
+        x: dataSeries.time,
+        y: dataSeries.cpu_percent_mean,
         type: 'scatter',
         line: { color: 'rgba(0, 0, 255, 0.5)', width: 2 },
         fill: 'tozeroy',
@@ -78,16 +113,14 @@ async function fetchData() {
       },
     ]
     memLayout.value.yaxis = {
-      range: [0, toGigaBytes(res.data.mem_total)],
+      range: [0, toGigaBytes(mem_total)],
       autorange: false,
       ticksuffix: 'GB',
     }
     memData.value = [
       {
-        x: timeSeries,
-        y: res.data.records.mem_available_mean.map((x: number) =>
-          toGigaBytes(res.data.mem_total - x),
-        ),
+        x: dataSeries.time,
+        y: dataSeries.mem_available_mean.map((x: number) => toGigaBytes(mem_total - x)),
         type: 'scatter',
         line: { color: 'rgba(0, 255, 0, 0.5)', width: 2 },
         fill: 'tozeroy',
@@ -95,14 +128,14 @@ async function fetchData() {
       },
     ]
     diskLayout.value.yaxis = {
-      range: [0, toGigaBytes(res.data.disk_total)],
+      range: [0, toGigaBytes(disk_total)],
       autorange: false,
       ticksuffix: 'GB',
     }
     diskData.value = [
       {
-        x: timeSeries,
-        y: res.data.records.disk_used_mean.map((x: number) => toGigaBytes(x)),
+        x: dataSeries.time,
+        y: dataSeries.disk_used_mean.map((x: number) => toGigaBytes(x)),
         type: 'scatter',
         line: { color: 'rgba(255, 0, 255, 0.5)', width: 2 },
         fill: 'tozeroy',
@@ -126,21 +159,18 @@ onMounted(async () => {
   <main>
     <plotly-component
       class="plotly-component"
-      ref="cpuPlotRef"
       :dataset="cpuData"
       :layout="cpuLayout"
       :config="commonConfig"
     />
     <plotly-component
       class="plotly-component"
-      ref="memPlotRef"
       :dataset="memData"
       :layout="memLayout"
       :config="commonConfig"
     />
     <plotly-component
       class="plotly-component"
-      ref="diskPlotRef"
       :dataset="diskData"
       :layout="diskLayout"
       :config="commonConfig"

@@ -7,7 +7,7 @@ from apscheduler.triggers.interval import IntervalTrigger
 from pathlib import Path
 from .common import settings
 from .db import database
-from .job.metrics import collect_system_metrics
+from .job.metrics import collect_metrics
 from . import api
 from . import frontend
 
@@ -20,7 +20,7 @@ async def lifespan(app: FastAPI):
     global scheduler
     database.init()
     scheduler = BackgroundScheduler()
-    scheduler.add_job(collect_system_metrics, trigger=IntervalTrigger(seconds=1))
+    scheduler.add_job(collect_metrics, trigger=IntervalTrigger(seconds=1))
     scheduler.start()
 
     # app実行中

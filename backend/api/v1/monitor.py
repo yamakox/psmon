@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field
 from collections import defaultdict
 from datetime import datetime
@@ -9,8 +9,8 @@ from ...job import metrics
 
 # MARK: MonitorRecord
 class MonitorRecord(BaseModel):
-    # time: datetime = Field(..., alias='_time')
-    time_delta: float
+    time: datetime = Field(..., alias='_time')
+    #time_delta: float
     cpu_percent_max: float|None = None
     cpu_percent_mean: float|None = None
     mem_available_max: float|None = None
@@ -42,7 +42,7 @@ def create_router(base_path: Path) -> APIRouter:
         '''モニタリングしていたデータをJSON形式で取得する。'''
         if not database.client:
             raise HTTPException(status_code=500, detail='database client is not initialized.')
-        timestamp, records = database.get_records_by_time()
+        timestamp, records = database.get_system_stats_records_by_time()
         return MonitorResponse(
             timestamp=timestamp, 
             mem_total=metrics.get_mem_total(), 
@@ -52,11 +52,13 @@ def create_router(base_path: Path) -> APIRouter:
 
     # MARK: /api/v1/monitor
     @router.get('', response_model=MonitorResponseCompact)
-    def get_monitor_records_by_field():
+    def get_monitor_records_by_field(
+        start_time: datetime|None = Query(default=None, description='start time to query')
+    ):
         '''モニタリングしていたデータをフィールドごとに取得する。'''
         if not database.client:
             raise HTTPException(status_code=500, detail='database client is not initialized.')
-        timestamp, _records = database.get_records_by_time()
+        timestamp, _records = database.get_system_stats_records_by_time(start_time=start_time)
         _res = MonitorResponse(
             timestamp=timestamp, 
             mem_total=metrics.get_mem_total(), 
