@@ -12,6 +12,13 @@ export default defineConfig({
     hmr: {
       host: 'localhost',
     },
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8000', // NOTE: Dockerコンテナ内部のホスト名とポート番号を設定する
+        changeOrigin: true,
+        //rewrite: (path) => path.replace(/^\/api/, '/api'),
+      },
+    },
   },
   plugins: [
     vue({
@@ -34,8 +41,5 @@ export default defineConfig({
       // エイリアス'@'はjsやvueのimportでのみ有効。htmlでは`/src/...`と書くこと。
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
-  },
-  define: {
-    global: 'window',
   },
 })
