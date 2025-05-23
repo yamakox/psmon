@@ -1,3 +1,3 @@
-# psui - psutil Web UI
+# psmon - Process and System Monitor
 
-Psui shows CPU utilization and memory usage.
+Psmon shows CPU utilization and memory usage.

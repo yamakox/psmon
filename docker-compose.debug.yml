@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: ./Dockerfile.debug
       tags:
-        - "psui-debug:latest"
+        - "psmon-debug:latest"
       args:
         HOST: 0.0.0.0
         PORT: 8000

@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: ./Dockerfile
       tags:
-        - "psui-release:latest"
+        - "psmon-release:latest"
       args:
         HOST: 0.0.0.0
         PORT: 8000

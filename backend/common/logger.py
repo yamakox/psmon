@@ -1,8 +1,8 @@
 import logging
 from . import settings
 
-# MARK: logger "psui"
-logger: logging.Logger|None = logging.getLogger('psui')
+# MARK: logger "psmon"
+logger: logging.Logger|None = logging.getLogger('psmon')
 
 logging.basicConfig(
     level=logging.DEBUG if settings.APP_DEBUG else logging.INFO, 

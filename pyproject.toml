@@ -1,7 +1,7 @@
 [project]
-name = "psui"
+name = "psmon"
 version = "0.0.1"
-description = "psutil Web UI"
+description = "Process and System Monitor"
 authors = [
     {name = "yamakox",email = "yamakox@gmail.com"}
 ]
@@ -26,7 +26,7 @@ debugpy = "^1.8.14"
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
 
+[tool.poetry.requires-plugins]
 # 忘れがちだが、以下の行を追加しないとpoetry exportが使えずrequirements.txtを生成できない。
 # 以下の行を追加したら、`poetry install --no-root`を実行すること。
-[tool.poetry.requires-plugins]
 poetry-plugin-export = ">=1.8"
