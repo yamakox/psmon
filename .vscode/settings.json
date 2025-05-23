@@ -11,5 +11,8 @@
     "source.fixAll": "never"
   },
   "editor.formatOnSave": true,
-  "editor.defaultFormatter": "esbenp.prettier-vscode"
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "workbench.colorCustomizations": {
+    "editorGhostText.background": "#f8d800"
+  }
 }
