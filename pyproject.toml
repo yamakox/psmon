@@ -18,6 +18,9 @@ dependencies = [
 ]
 
 [tool.poetry]
+# HowTo: https://python-poetry.org/docs/basic-usage/#operating-modes
+# same as `poetry install --no-root`
+package-mode = false
 
 [tool.poetry.group.dev.dependencies]
 debugpy = "^1.8.14"
