@@ -9,19 +9,12 @@ load_dotenv()
 
 PORT = int(os.environ.get('PORT', 8000))
 APP_DEBUG = int(os.environ.get('APP_DEBUG', "0"))
-DISK_USAGE_PATH = os.environ.get('DISK_USAGE_PATH', '/')
+ROOTFS_PATH = os.environ.get('ROOTFS_PATH', '/')
+TOP_PROCESS_COUNT = int(os.environ.get('TOP_PROCESS_COUNT', 10))
 INFLUXDB_URL = os.environ.get('INFLUXDB_URL', 'http://localhost:8086')
 INFLUXDB_TOKEN = os.environ.get('INFLUXDB_TOKEN', 'my-secret-token')
 INFLUXDB_ORG = os.environ.get('INFLUXDB_ORG', 'my-org')
 INFLUXDB_BUCKET = os.environ.get('INFLUXDB_BUCKET', 'system-metrics')
-
-from .logger import logger
-logger.debug(f'【settings.py】 {APP_DEBUG=}')
-logger.debug(f'【settings.py】 {DISK_USAGE_PATH=}')
-logger.debug(f'【settings.py】 {INFLUXDB_URL=}')
-logger.debug(f'【settings.py】 {INFLUXDB_TOKEN=}')
-logger.debug(f'【settings.py】 {INFLUXDB_ORG=}')
-logger.debug(f'【settings.py】 {INFLUXDB_BUCKET=}')
 
 # MARK: constants
 

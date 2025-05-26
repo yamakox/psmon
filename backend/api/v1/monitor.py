@@ -33,6 +33,17 @@ class MonitorResponseCompact(BaseModel):
     disk_total: float
     records: dict[str, list[datetime|float|None]]
 
+# MARK: ProcessCpuRecord
+class ProcessCpuRecord(BaseModel):
+    pid: int
+    name: str
+    cpu_percent: float
+
+# MARK: ProcessCpuResponse
+class ProcessCpuResponse(BaseModel):
+    timestamp: datetime
+    records: list[ProcessCpuRecord]
+
 def create_router(base_path: Path) -> APIRouter:
     # MARK: /api/v1/monitor
     router = APIRouter(prefix='/monitor')
@@ -91,6 +102,24 @@ def create_router(base_path: Path) -> APIRouter:
             timestamp=timestamp, 
             mem_total=_res.mem_total, 
             disk_total=_res.disk_total, 
+            records=records, 
+        )
+
+    # MARK: /api/v1/monitor/process-cpu
+    @router.get('/process-cpu', response_model=ProcessCpuResponse)
+    def get_process_cpu_records(
+        duration_index: int = Query(default=0, description='duration index to query'),
+        time: datetime = Query(description='time to query')
+    ):
+        '''プロセスのCPU使用率を取得する。'''
+        if not database.client:
+            raise HTTPException(status_code=500, detail='database client is not initialized.')
+        timestamp, records = database.get_process_cpu_record_at_time(
+            time=time,
+            every_seconds=settings.DURATIONS[duration_index].every_seconds,
+        )
+        return ProcessCpuResponse(
+            timestamp=timestamp, 
             records=records, 
         )
 

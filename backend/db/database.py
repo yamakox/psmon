@@ -2,6 +2,7 @@ from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import SYNCHRONOUS
 from influxdb_client.client.flux_table import TableList
 from ..common import settings
+from ..common.logger import logger
 from datetime import datetime, timedelta
 from dateutil import tz
 from typing import Any
@@ -56,9 +57,9 @@ def write_process_cpu_record(time: int, processes: list[tuple[float, int, str]])
         point = (
             Point(_MEASUREMENT_PROCESS_CPU)
             .time(time)
+            .tag('pid', str(pid))
+            .tag('name', name)
             .field('cpu_percent', cpu)
-            .field('pid', pid)
-            .field('name', name)
         )
         write_api.write(
             bucket=settings.INFLUXDB_BUCKET, 
@@ -73,7 +74,7 @@ def get_system_stats_records_by_time(duration_index: int = 0, start_time: dateti
         start_time (datetime|None): 取得する時間の開始時刻、Noneの場合は6時間前(now() - 6h)から取得する
 
     Returns:
-        tuple[datetime, list[dict]]: 取得したデータの時刻とデータ
+        tuple[datetime, list[dict]]: 取得した時刻とデータ
     '''
     if not client:
         raise Exception('No database client object.')
@@ -95,30 +96,34 @@ def get_system_stats_records_by_time(duration_index: int = 0, start_time: dateti
     #return timestamp, output
     return timestamp, _convert_tables_to_list(tables)
 
-def get_process_cpu_record_at_time(time: datetime):
+def get_process_cpu_record_at_time(time: datetime, every_seconds: int):
     '''DBに保存してあったpsutilで取得したCPU使用率が高いプロセスのリストを指定された時刻で取得する。
     
     Args:
         time (datetime): 取得する時刻
 
     Returns:
-        list[tuple[float, int, str]]: プロセスのCPU使用率、PID、プロセス名
+        tuple[datetime, list[dict]]: 取得した時刻と、PID・プロセス名・CPU使用率のリスト
     '''
     if not client:
         raise Exception('No database client object.')
-    start_time = (time - timedelta(milliseconds=500)).isoformat()
-    end_time = (time + timedelta(milliseconds=500)).isoformat()
+    start_time = (time - timedelta(seconds=every_seconds)).isoformat()
+    end_time = time.isoformat()
+    # NOTE: tagはpivotの対象ではないが、行に自動で含まれる。keepで明示的に残す。
+    # (tagはPandasのDataFrameにおける「インデックスやカラムの属性情報」に近いイメージ)
     query = f'''
     from(bucket: "{settings.INFLUXDB_BUCKET}")
       |> range(start: {start_time}, stop: {end_time})
       |> filter(fn: (r) => r._measurement == "{_MEASUREMENT_PROCESS_CPU}")
       |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
       |> keep(columns: ["pid", "name", "cpu_percent"])
-      |> sort(columns: ["cpu"], desc: true)
+    //  |> sort(columns: ["cpu_percent"], desc: true)
     '''
     timestamp = datetime.now(tz=tz.UTC)
     tables = client.query_api().query(query=query)
-    return timestamp, _convert_tables_to_list(tables)
+    records = _convert_tables_to_list(tables)
+    # records = sorted(records, key=lambda x: x['cpu_percent'], reverse=True)
+    return timestamp, records
 
 # MARK: subroutines
 
