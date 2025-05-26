@@ -6,6 +6,7 @@ from dateutil import tz
 from pathlib import Path
 from ...db import database
 from ...job import metrics
+from ...common import settings
 
 # MARK: MonitorRecord
 class MonitorRecord(BaseModel):
@@ -36,13 +37,25 @@ def create_router(base_path: Path) -> APIRouter:
     # MARK: /api/v1/monitor
     router = APIRouter(prefix='/monitor')
 
+    # MARK: /api/v1/monitor/durations
+    @router.get('/durations', response_model=list[settings.Duration])
+    def get_durations():
+        '''モニタリングの時間間隔のリストを取得する。'''
+        return settings.DURATIONS
+
     # MARK: /api/v1/monitor/json
     @router.get('/json', response_model=MonitorResponse)
-    def get_monitor_records_in_json():
+    def get_monitor_records_in_json(
+        duration_index: int = Query(default=0, description='duration index to query'),
+        start_time: datetime|None = Query(default=None, description='start time to query')
+    ):
         '''モニタリングしていたデータをJSON形式で取得する。'''
         if not database.client:
             raise HTTPException(status_code=500, detail='database client is not initialized.')
-        timestamp, records = database.get_system_stats_records_by_time()
+        timestamp, records = database.get_system_stats_records_by_time(
+            duration_index=duration_index,
+            start_time=start_time,
+        )
         return MonitorResponse(
             timestamp=timestamp, 
             mem_total=metrics.get_mem_total(), 
@@ -53,12 +66,16 @@ def create_router(base_path: Path) -> APIRouter:
     # MARK: /api/v1/monitor
     @router.get('', response_model=MonitorResponseCompact)
     def get_monitor_records_by_field(
+        duration_index: int = Query(default=0, description='duration index to query'),
         start_time: datetime|None = Query(default=None, description='start time to query')
     ):
         '''モニタリングしていたデータをフィールドごとに取得する。'''
         if not database.client:
             raise HTTPException(status_code=500, detail='database client is not initialized.')
-        timestamp, _records = database.get_system_stats_records_by_time(start_time=start_time)
+        timestamp, _records = database.get_system_stats_records_by_time(
+            duration_index=duration_index,
+            start_time=start_time,
+        )
         _res = MonitorResponse(
             timestamp=timestamp, 
             mem_total=metrics.get_mem_total(), 

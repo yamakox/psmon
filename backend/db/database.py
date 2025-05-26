@@ -65,7 +65,7 @@ def write_process_cpu_record(time: int, processes: list[tuple[float, int, str]])
             record=point, 
         )
 
-def get_system_stats_records_by_time(every: str = "1m", start_time: datetime|None = None):
+def get_system_stats_records_by_time(duration_index: int = 0, start_time: datetime|None = None):
     '''DBに保存してあったpsutilのデータを時間ごとに取得する。
     
     Args:
@@ -77,10 +77,16 @@ def get_system_stats_records_by_time(every: str = "1m", start_time: datetime|Non
     '''
     if not client:
         raise Exception('No database client object.')
-    start = (start_time + timedelta(microseconds=1)).isoformat() if start_time else None
+    if duration_index < 0 or duration_index >= len(settings.DURATIONS):
+        raise Exception('Invalid duration index.')
+    duration = settings.DURATIONS[duration_index]
+    if start_time:
+        start = (start_time + timedelta(microseconds=1)).isoformat()
+    else:
+        start = duration.period_start
     query = _generate_system_stats_query(
         fields=['cpu_percent', 'mem_available', 'disk_used'], 
-        every=every, 
+        every=duration.every, 
         start=start, 
     )
     timestamp = datetime.now(tz=tz.UTC)
@@ -116,7 +122,7 @@ def get_process_cpu_record_at_time(time: datetime):
 
 # MARK: subroutines
 
-def _generate_system_stats_query(fields: list[str], every: str, start: str|None) -> str:
+def _generate_system_stats_query(fields: list[str], every: str, start: str) -> str:
     field_filter = " or ".join([f'r._field == "{field}"' for field in fields])
     pivot_columns = [f"{field}_max" for field in fields] + [f"{field}_mean" for field in fields]
     pivot_columns_str = ", ".join([f'"{col}"' for col in pivot_columns])
@@ -125,7 +131,7 @@ def _generate_system_stats_query(fields: list[str], every: str, start: str|None)
 import "date"
 truncated_end = date.truncate(t: now(), unit: {every})
 data = from(bucket: "{settings.INFLUXDB_BUCKET}")
-  |> range(start: {start if start else "-6h"})
+  |> range(start: {start})
   |> filter(fn: (r) => r._measurement == "{_MEASUREMENT_SYS_STATS}")
   |> filter(fn: (r) => {field_filter})
   |> filter(fn: (r) => r._time < truncated_end)
