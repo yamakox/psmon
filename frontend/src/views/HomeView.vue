@@ -218,7 +218,20 @@ async function fetchData() {
   }
 }
 
-// MARK: onMounted
+// MARK: event handlers
+
+async function plotly_click(event: Plotly.PlotMouseEvent) {
+  console.log('HomeView: plotly_click', event)
+  const point = event.points?.shift()
+  if (point === undefined) {
+    return
+  }
+  console.log(
+    `HomeView: plotly_click: x=${point.x}, y=${point.y}, pointNumber=${point.pointNumber} dataSeries.time=${dataSeries.time[point.pointNumber]}`,
+  )
+}
+
+// MARK: onMounted / onUnmounted
 
 let intervalId: number | null = null
 
@@ -275,18 +288,21 @@ onUnmounted(() => {
       :dataset="cpuData"
       :layout="cpuLayout"
       :config="commonConfig"
+      @plotly_click="plotly_click"
     />
     <plotly-component
       class="plotly-component"
       :dataset="memData"
       :layout="memLayout"
       :config="commonConfig"
+      @plotly_click="plotly_click"
     />
     <plotly-component
       class="plotly-component"
       :dataset="diskData"
       :layout="diskLayout"
       :config="commonConfig"
+      @plotly_click="plotly_click"
     />
   </main>
 </template>
