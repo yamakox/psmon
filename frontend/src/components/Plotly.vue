@@ -53,7 +53,7 @@ const emit = defineEmits<{
 const rootRef = ref<HTMLDivElement>()
 let plotlyHTMLElement: Plotly.PlotlyHTMLElement | null = null
 
-const debug_logging = true
+const debug_logging = false
 
 // MARK: functions
 
@@ -69,129 +69,129 @@ async function setupPlot() {
     if (plotlyHTMLElement !== element) {
       plotlyHTMLElement = element
       plotlyHTMLElement.on('plotly_click', (event: Plotly.PlotMouseEvent) => {
-        console.debug('plotly_click', event) // NOTE: console.debugはconsoleのVerboseレベルで出力される
+        log('plotly_click', event)
         emit('plotly_click', event)
       })
       plotlyHTMLElement.on('plotly_unhover', (event: Plotly.PlotMouseEvent) => {
-        console.debug('plotly_unhover', event)
+        log('plotly_unhover', event)
         emit('plotly_unhover', event)
       })
       plotlyHTMLElement.on('plotly_hover', (event: Plotly.PlotHoverEvent) => {
-        console.debug('plotly_hover', event)
+        log('plotly_hover', event)
         emit('plotly_hover', event)
       })
       plotlyHTMLElement.on('plotly_selecting', (event: Plotly.PlotSelectionEvent) => {
-        console.debug('plotly_selecting', event)
+        log('plotly_selecting', event)
         emit('plotly_selecting', event)
       })
       plotlyHTMLElement.on('plotly_selected', (event: Plotly.PlotSelectionEvent) => {
-        console.debug('plotly_selected', event)
+        log('plotly_selected', event)
         emit('plotly_selected', event)
       })
       plotlyHTMLElement.on('plotly_restyle', (event: Plotly.PlotRestyleEvent) => {
-        console.debug('plotly_restyle', event)
+        log('plotly_restyle', event)
         emit('plotly_restyle', event)
       })
       plotlyHTMLElement.on('plotly_relayout', (event: Plotly.PlotRelayoutEvent) => {
-        console.debug('plotly_relayout', event)
+        log('plotly_relayout', event)
         emit('plotly_relayout', event)
       })
       plotlyHTMLElement.on('plotly_relayouting', (event: Plotly.PlotRelayoutEvent) => {
-        console.debug('plotly_relayouting', event)
+        log('plotly_relayouting', event)
         emit('plotly_relayouting', event)
       })
       plotlyHTMLElement.on('plotly_clickannotation', (event: Plotly.ClickAnnotationEvent) => {
-        console.debug('plotly_clickannotation', event)
+        log('plotly_clickannotation', event)
         emit('plotly_clickannotation', event)
       })
       plotlyHTMLElement.on('plotly_animatingframe', (event: Plotly.FrameAnimationEvent) => {
-        console.debug('plotly_animatingframe', event)
+        log('plotly_animatingframe', event)
         emit('plotly_animatingframe', event)
       })
       plotlyHTMLElement.on('plotly_legendclick', (event: Plotly.LegendClickEvent) => {
         const returnValues = { cancelDefault: false }
-        console.debug('plotly_legendclick', event)
+        log('plotly_legendclick', event)
         emit('plotly_legendclick', event, returnValues)
         return !returnValues.cancelDefault
       })
       plotlyHTMLElement.on('plotly_legenddoubleclick', (event: Plotly.LegendClickEvent) => {
         const returnValues = { cancelDefault: false }
-        console.debug('plotly_legenddoubleclick', event)
+        log('plotly_legenddoubleclick', event)
         emit('plotly_legenddoubleclick', event, returnValues)
         return !returnValues.cancelDefault
       })
       plotlyHTMLElement.on('plotly_sliderchange', (event: Plotly.SliderChangeEvent) => {
-        console.debug('plotly_sliderchange', event)
+        log('plotly_sliderchange', event)
         emit('plotly_sliderchange', event)
       })
       plotlyHTMLElement.on('plotly_sliderend', (event: Plotly.SliderEndEvent) => {
-        console.debug('plotly_sliderend', event)
+        log('plotly_sliderend', event)
         emit('plotly_sliderend', event)
       })
       plotlyHTMLElement.on('plotly_sliderstart', (event: Plotly.SliderStartEvent) => {
-        console.debug('plotly_sliderstart', event)
+        log('plotly_sliderstart', event)
         emit('plotly_sliderstart', event)
       })
       plotlyHTMLElement.on('plotly_sunburstclick', (event: Plotly.SunburstClickEvent) => {
-        console.debug('plotly_sunburstclick', event)
+        log('plotly_sunburstclick', event)
         emit('plotly_sunburstclick', event)
       })
       plotlyHTMLElement.on('plotly_event', (event: any) => {
-        console.debug('plotly_event', event)
+        log('plotly_event', event)
         emit('plotly_event', event)
       })
       plotlyHTMLElement.on('plotly_beforeplot', (event: Plotly.BeforePlotEvent) => {
         const returnValues = { cancelDefault: false }
-        console.debug('plotly_beforeplot', event)
+        log('plotly_beforeplot', event)
         emit('plotly_beforeplot', event, returnValues)
         return !returnValues.cancelDefault
       })
       plotlyHTMLElement.on('plotly_afterexport', () => {
-        console.debug('plotly_afterexport')
+        log('plotly_afterexport')
         emit('plotly_afterexport')
       })
       plotlyHTMLElement.on('plotly_afterplot', () => {
-        console.debug('plotly_afterplot')
+        log('plotly_afterplot')
         emit('plotly_afterplot')
       })
       plotlyHTMLElement.on('plotly_animated', () => {
-        console.debug('plotly_animated')
+        log('plotly_animated')
         emit('plotly_animated')
       })
       plotlyHTMLElement.on('plotly_animationinterrupted', () => {
-        console.debug('plotly_animationinterrupted')
+        log('plotly_animationinterrupted')
         emit('plotly_animationinterrupted')
       })
       plotlyHTMLElement.on('plotly_autosize', () => {
-        console.debug('plotly_autosize')
+        log('plotly_autosize')
         emit('plotly_autosize')
       })
       plotlyHTMLElement.on('plotly_beforeexport', () => {
-        console.debug('plotly_beforeexport')
+        log('plotly_beforeexport')
         emit('plotly_beforeexport')
       })
       plotlyHTMLElement.on('plotly_deselect', () => {
-        console.debug('plotly_deselect')
+        log('plotly_deselect')
         emit('plotly_deselect')
       })
       plotlyHTMLElement.on('plotly_doubleclick', () => {
-        console.debug('plotly_doubleclick')
+        log('plotly_doubleclick')
         emit('plotly_doubleclick')
       })
       plotlyHTMLElement.on('plotly_framework', () => {
-        console.debug('plotly_framework')
+        log('plotly_framework')
         emit('plotly_framework')
       })
       plotlyHTMLElement.on('plotly_redraw', () => {
-        console.debug('plotly_redraw')
+        log('plotly_redraw')
         emit('plotly_redraw')
       })
       plotlyHTMLElement.on('plotly_transitioning', () => {
-        console.debug('plotly_transitioning')
+        log('plotly_transitioning')
         emit('plotly_transitioning')
       })
       plotlyHTMLElement.on('plotly_transitioninterrupted', () => {
-        console.debug('plotly_transitioninterrupted')
+        log('plotly_transitioninterrupted')
         emit('plotly_transitioninterrupted')
       })
     }

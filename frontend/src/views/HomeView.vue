@@ -80,6 +80,18 @@ const commonConfig = ref<Partial<Plotly.Config>>({
   displayModeBar: false,
 })
 
+// MARK: process CPU records
+const processCpuRecords = ref<
+  {
+    pid: number
+    name: string
+    cpu_max: number
+    cpu_min: number
+    cpu_mean: number
+  }[]
+>([])
+const processCpuTime = ref<Date | null>(null)
+
 // MARK: utility functions
 
 function toGigaBytes(bytes: number) {
@@ -229,6 +241,18 @@ async function plotly_click(event: Plotly.PlotMouseEvent) {
   console.log(
     `HomeView: plotly_click: x=${point.x}, y=${point.y}, pointNumber=${point.pointNumber} dataSeries.time=${dataSeries.time[point.pointNumber]}`,
   )
+  try {
+    const res = await axios.get('/api/v1/monitor/process-cpu', {
+      params: {
+        time: dataSeries.time[point.pointNumber],
+        duration_index: selectedDurationIndex.value,
+      },
+    })
+    processCpuRecords.value = res.data.records
+    processCpuTime.value = new Date(res.data.timestamp)
+  } catch (error) {
+    console.error(error)
+  }
 }
 
 // MARK: onMounted / onUnmounted
@@ -304,14 +328,87 @@ onUnmounted(() => {
       :config="commonConfig"
       @plotly_click="plotly_click"
     />
+    <div class="process-cpu" v-if="processCpuTime !== null">
+      <div class="process-cpu-time">
+        Processes with high CPU utilization at {{ processCpuTime.toLocaleString() }}:
+      </div>
+      <div class="process-cpu-table-container">
+        <table class="table process-cpu-table table-striped table-light table-sm">
+          <thead>
+            <tr>
+              <th class="column-pid">PID</th>
+              <th class="column-name">Name</th>
+              <th class="column-cpu">CPU</th>
+            </tr>
+          </thead>
+          <tbody class="table-group-divider">
+            <tr v-for="record in processCpuRecords" :key="record.pid">
+              <td class="column-pid">{{ record.pid }}</td>
+              <td class="column-name">{{ record.name }}</td>
+              <td class="column-cpu">
+                <span class="process-cpu-mean">{{ record.cpu_mean }}%</span>
+                <span class="process-cpu-min">
+                  ({{ record.cpu_min }}% 〜 {{ record.cpu_max }}%)
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </main>
 </template>
 
 <style scoped>
+.plotly-component {
+  height: 250px;
+}
 .duration-selector {
-  margin: 4px;
+  margin: 4px 8px;
 }
 .duration-selector-btn {
   min-width: 10rem;
+}
+.process-cpu {
+  margin: 4px 8px;
+  padding: 4px 8px;
+  border: 1px solid #ccc;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.process-cpu-time {
+  margin: 0;
+  padding: 0;
+}
+.process-cpu-table-container {
+  margin: 0;
+  padding: 0;
+  overflow-x: auto;
+}
+.process-cpu-table {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+.column-pid {
+  width: 10%;
+  min-width: 5rem;
+  padding-right: 1rem;
+  text-align: right;
+}
+.column-name {
+  width: 40%;
+  white-space: nowrap;
+}
+.column-cpu {
+  width: 50%;
+  white-space: nowrap;
+}
+.process-cpu-mean {
+  display: inline-block;
+  min-width: 3.3rem;
+  text-align: right;
+  margin: 0 0.25rem 0 0;
 }
 </style>
