@@ -13,7 +13,7 @@ services:
     init: true
     restart: no
     ports:
-      - ${PORT:-8000}:8000
+      - ${HOST:-127.0.0.1}:${PORT:-8000}:8000
     environment:
       ROOTFS_PATH: ${ROOTFS_PATH:-/rootfs}
       TOP_PROCESS_COUNT: ${TOP_PROCESS_COUNT:-10}
@@ -27,8 +27,8 @@ services:
   influxdb:
     image: influxdb:2
     container_name: influxdb
-    ports:
-      - ${INFLUXDB_PORT:-8086}:8086
+    #    ports:
+    #      - ${HOST:-127.0.0.1}:${INFLUXDB_PORT:-8086}:8086
     volumes:
       - influxdb-data:/var/lib/influxdb2
     environment:

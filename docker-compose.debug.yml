@@ -14,9 +14,9 @@ services:
     init: true
     restart: no
     ports:
-      - ${PORT:-8000}:8000
-      - ${DEBUG_PORT:-8001}:8001
-      - ${VITE_PORT:-5173}:5173
+      - ${HOST:-127.0.0.1}:${PORT:-8000}:8000
+      - ${HOST:-127.0.0.1}:${DEBUG_PORT:-8001}:8001
+      - ${HOST:-127.0.0.1}:${VITE_PORT:-5173}:5173
     environment:
       APP_DEBUG: 1
       ROOTFS_PATH: ${ROOTFS_PATH:-/rootfs}
@@ -33,7 +33,7 @@ services:
     image: influxdb:2
     container_name: influxdb
     ports:
-      - ${INFLUXDB_PORT:-8086}:8086
+      - ${HOST:-127.0.0.1}:${INFLUXDB_PORT:-8086}:8086
     volumes:
       - influxdb-data:/var/lib/influxdb2
     environment:
