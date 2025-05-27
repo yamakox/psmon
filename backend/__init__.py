@@ -1,5 +1,3 @@
-__version__ = '0.0.0'
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles

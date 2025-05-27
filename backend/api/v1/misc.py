@@ -1,7 +1,7 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from pathlib import Path
-from backend import __version__
+import tomllib
 
 # MARK: VersionResponse
 class VersionResponse(BaseModel):
@@ -15,7 +15,11 @@ def create_router(base_path: Path) -> APIRouter:
     @router.get('/version', response_model=VersionResponse)
     def get_version():
         '''バージョン情報を取得する。'''
-        return VersionResponse(version=__version__)
-
+        try:
+            with open(base_path / 'pyproject.toml', 'rb') as f:
+                data = tomllib.load(f)
+                return VersionResponse(version=data['project']['version'])
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+    
     return router
-
