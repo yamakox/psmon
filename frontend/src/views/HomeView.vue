@@ -28,7 +28,7 @@ async function durationSelected(index: number) {
   selectedDurationIndex.value = index
   sessionStorage.setItem('durationIndex', JSON.stringify(index))
   dataSeries.time.length = 0
-  await fetchData()
+  ;(await fetchData()) && (await fetchProcessCpuRecords())
 }
 
 // MARK: data series
@@ -92,6 +92,25 @@ const processCpuRecords = ref<
 >([])
 const processCpuTime = ref<Date | null>(null)
 
+async function fetchProcessCpuRecords(pointNumber: number = -1) {
+  const time = dataSeries.time.at(pointNumber)
+  if (time === undefined) {
+    return
+  }
+  try {
+    const res = await axios.get('/api/v1/monitor/process-cpu', {
+      params: {
+        time: time,
+        duration_index: selectedDurationIndex.value,
+      },
+    })
+    processCpuRecords.value = res.data.records
+    processCpuTime.value = time
+  } catch (error) {
+    console.error(error)
+  }
+}
+
 // MARK: utility functions
 
 function toGigaBytes(bytes: number) {
@@ -111,12 +130,13 @@ const isLoading = ref<boolean>(false)
 async function fetchData() {
   if (durations.value.length === 0) {
     console.error('durations is empty')
-    return
+    return 0
   }
   if (isLoading.value) {
-    return
+    return 0
   }
   isLoading.value = true
+  let records = null
   try {
     let mem_total = 0
     let disk_total = 0
@@ -129,7 +149,7 @@ async function fetchData() {
       })
       mem_total = res.data.mem_total
       disk_total = res.data.disk_total
-      const records = res.data.records
+      records = res.data.records
       dataSeries.time = records.time.map((time: string) => new Date(time))
       dataSeries.cpu_percent_max = records.cpu_percent_max
       dataSeries.cpu_percent_mean = records.cpu_percent_mean
@@ -146,7 +166,7 @@ async function fetchData() {
       })
       mem_total = res.data.mem_total
       disk_total = res.data.disk_total
-      const records = res.data.records
+      records = res.data.records
       if (records.time?.length > 0) {
         dataSeries.time.push(...records.time.map((time: string) => new Date(time)))
         dataSeries.cpu_percent_max.push(...records.cpu_percent_max)
@@ -228,6 +248,7 @@ async function fetchData() {
   } finally {
     isLoading.value = false
   }
+  return Number(records?.time?.length ?? 0)
 }
 
 // MARK: event handlers
@@ -238,21 +259,7 @@ async function plotly_click(event: Plotly.PlotMouseEvent) {
   if (point === undefined) {
     return
   }
-  console.log(
-    `HomeView: plotly_click: x=${point.x}, y=${point.y}, pointNumber=${point.pointNumber} dataSeries.time=${dataSeries.time[point.pointNumber]}`,
-  )
-  try {
-    const res = await axios.get('/api/v1/monitor/process-cpu', {
-      params: {
-        time: dataSeries.time[point.pointNumber],
-        duration_index: selectedDurationIndex.value,
-      },
-    })
-    processCpuRecords.value = res.data.records
-    processCpuTime.value = new Date(res.data.timestamp)
-  } catch (error) {
-    console.error(error)
-  }
+  await fetchProcessCpuRecords(point.pointNumber)
 }
 
 // MARK: onMounted / onUnmounted
@@ -263,13 +270,13 @@ onMounted(async () => {
   console.log('HomeView: onMounted')
   try {
     durations.value = (await axios.get('/api/v1/monitor/durations')).data
-    await fetchData()
+    ;(await fetchData()) && (await fetchProcessCpuRecords())
     if (intervalId !== null) {
       clearInterval(intervalId)
     }
     intervalId = setInterval(async () => {
       try {
-        await fetchData()
+        ;(await fetchData()) && (await fetchProcessCpuRecords())
       } catch (error) {
         console.error(error)
       }

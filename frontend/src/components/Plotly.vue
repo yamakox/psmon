@@ -57,7 +57,7 @@ const debug_logging = false
 
 // MARK: functions
 
-function log(message: string, event: any) {
+function log(message: string, event?: any) {
   if (debug_logging) {
     console.debug(message, event) // NOTE: console.debugはconsoleのVerboseレベルで出力される
   }

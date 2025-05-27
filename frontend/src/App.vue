@@ -7,11 +7,11 @@ import { RouterLink, RouterView } from 'vue-router'
     <header class="container-fluid d-flex flex-row justify-content-start align-items-center">
       <div class="row w-100">
         <div class="col-10">
-          <h4>psmon</h4>
+          <h4 class="title">psmon</h4>
         </div>
         <div class="col-2 d-flex flex-row justify-content-end align-items-center gap-4">
-          <router-link to="/">Home</router-link>
-          <router-link to="/about">About</router-link>
+          <router-link class="nav-link" to="/">Home</router-link>
+          <router-link class="nav-link" to="/about">About</router-link>
         </div>
       </div>
     </header>
@@ -27,6 +27,11 @@ header {
   color: white;
   background-color: #2c3e50;
 }
+.title {
+  margin: 0.15em 0.5rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
 .app-container {
   margin: 0;
   padding: 0;
@@ -39,5 +44,8 @@ header {
 }
 .router-view {
   width: 100%;
+}
+.nav-link {
+  color: white;
 }
 </style>
