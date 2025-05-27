@@ -1,4 +1,4 @@
-from influxdb_client import InfluxDBClient, Point
+from influxdb_client import InfluxDBClient, BucketRetentionRules, Point
 from influxdb_client.client.write_api import SYNCHRONOUS
 from influxdb_client.client.flux_table import TableList
 from ..common import settings
@@ -19,6 +19,19 @@ def init():
         token=settings.INFLUXDB_TOKEN, 
         org=settings.INFLUXDB_ORG, 
     )
+
+    # 参考: retention periodが1週間のバケットの作成方法
+    # DOCKER_INFLUXDB_INIT_RETENTIONで設定できるため、以下のコードは不要になった
+
+    #buckets_api = client.buckets_api()
+    #existing_buckets = [b for b in buckets_api.find_buckets().buckets if b.name == settings.INFLUXDB_BUCKET]
+    #if not existing_buckets:
+    #    retention_rule = BucketRetentionRules(type="expire", every_seconds=60 * 60 * 24 * 7)
+    #    buckets_api.create_bucket(
+    #        bucket_name=settings.INFLUXDB_BUCKET, 
+    #        org=settings.INFLUXDB_ORG, 
+    #        retention_rules=[retention_rule]
+    #    )
 
 def exit():
     global client
