@@ -51,14 +51,14 @@ const diskData = ref<Plotly.Data[]>([])
 
 const makeLayout = (title: string, optionalArgs: Partial<Plotly.Layout> = {}) =>
   ref<Partial<Plotly.Layout>>({
-    title: { text: title, font: { size: 20 }, y: 0.94 },
-    height: 250,
+    title: { text: title, font: { size: 18 }, y: 0.9 },
+    height: 200,
     autosize: true,
     margin: {
       l: 60,
       r: 20,
-      t: 50,
-      b: 50,
+      t: 40,
+      b: 40,
     },
     xaxis: {
       // tickformat: '%H:%M\n%Y-%m-%d',   ← Plotlyの不具合? データが空のとき`WARN: encountered bad format`となる
@@ -297,12 +297,12 @@ onUnmounted(() => {
         data-bs-toggle="dropdown"
         aria-expanded="false"
       >
-        {{ durations[selectedDurationIndex].name }}
+        Last {{ durations[selectedDurationIndex].name }}
       </button>
       <ul class="dropdown-menu">
         <li v-for="(duration, index) in durations" :key="index">
           <a class="dropdown-item" href="#" @click="durationSelected(index)">
-            {{ duration.name }}
+            Last {{ duration.name }}
           </a>
         </li>
       </ul>
@@ -338,7 +338,7 @@ onUnmounted(() => {
             <tr>
               <th class="column-pid">PID</th>
               <th class="column-name">Name</th>
-              <th class="column-cpu">CPU</th>
+              <th class="column-cpu"><span class="process-cpu-mean">CPU</span></th>
             </tr>
           </thead>
           <tbody class="table-group-divider">
@@ -346,9 +346,9 @@ onUnmounted(() => {
               <td class="column-pid">{{ record.pid }}</td>
               <td class="column-name">{{ record.name }}</td>
               <td class="column-cpu">
-                <span class="process-cpu-mean">{{ record.cpu_mean }}%</span>
+                <span class="process-cpu-mean">{{ record.cpu_mean.toFixed(1) }}%</span>
                 <span class="process-cpu-min">
-                  ({{ record.cpu_min }}% 〜 {{ record.cpu_max }}%)
+                  ({{ record.cpu_min.toFixed(1) }}% 〜 {{ record.cpu_max.toFixed(1) }}%)
                 </span>
               </td>
             </tr>
@@ -361,13 +361,13 @@ onUnmounted(() => {
 
 <style scoped>
 .plotly-component {
-  height: 250px;
+  height: 200px;
 }
 .duration-selector {
   margin: 4px 8px;
 }
 .duration-selector-btn {
-  min-width: 10rem;
+  min-width: 12rem;
 }
 .process-cpu {
   margin: 4px 8px;
@@ -407,7 +407,7 @@ onUnmounted(() => {
 }
 .process-cpu-mean {
   display: inline-block;
-  min-width: 3.3rem;
+  min-width: 5rem;
   text-align: right;
   margin: 0 0.25rem 0 0;
 }
