@@ -71,9 +71,9 @@ const setLayoutYaxis = (layout: Partial<Plotly.Layout>, yaxis: Partial<Plotly.La
   }
   layout.yaxis = yaxis
 }
-const cpuLayout = makeLayout('CPU (Max,Mean)')
-const memLayout = makeLayout('Memory (Max)')
-const diskLayout = makeLayout('Disk (Max)')
+const cpuLayout = makeLayout('CPU')
+const memLayout = makeLayout('Memory')
+const diskLayout = makeLayout('Disk')
 
 const commonConfig = ref<Partial<Plotly.Config>>({
   responsive: true,
@@ -223,7 +223,7 @@ async function fetchData() {
         x: dataSeries.time,
         y: dataSeries.mem_available_max.map((x: number) => toGigaBytes(mem_total - x)),
         type: 'scatter',
-        line: { color: 'rgba(0, 255, 0, 0.5)', width: 2 },
+        line: { color: 'rgba(0, 255, 0, 0.5)', width: 1 },
         fill: 'tozeroy',
         fillcolor: 'rgba(0, 255, 0, 0.2)',
       },
@@ -238,7 +238,7 @@ async function fetchData() {
         x: dataSeries.time,
         y: dataSeries.disk_used_max.map((x: number) => toGigaBytes(x)),
         type: 'scatter',
-        line: { color: 'rgba(255, 0, 255, 0.5)', width: 2 },
+        line: { color: 'rgba(255, 0, 255, 0.5)', width: 1 },
         fill: 'tozeroy',
         fillcolor: 'rgba(255, 0, 255, 0.2)',
       },
@@ -296,71 +296,94 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <main>
-    <div class="dropdown-center duration-selector" v-if="durations.length > 0">
-      <button
-        class="btn btn-primary dropdown-toggle duration-selector-btn"
-        type="button"
-        data-bs-toggle="dropdown"
-        aria-expanded="false"
-      >
-        Last {{ durations[selectedDurationIndex].name }}
-      </button>
-      <ul class="dropdown-menu">
-        <li v-for="(duration, index) in durations" :key="index">
-          <a class="dropdown-item" href="#" @click="durationSelected(index)">
-            Last {{ duration.name }}
-          </a>
-        </li>
-      </ul>
-    </div>
-    <plotly-component
-      class="plotly-component"
-      :dataset="cpuData"
-      :layout="cpuLayout"
-      :config="commonConfig"
-      @plotly_click="plotly_click"
-    />
-    <plotly-component
-      class="plotly-component"
-      :dataset="memData"
-      :layout="memLayout"
-      :config="commonConfig"
-      @plotly_click="plotly_click"
-    />
-    <plotly-component
-      class="plotly-component"
-      :dataset="diskData"
-      :layout="diskLayout"
-      :config="commonConfig"
-      @plotly_click="plotly_click"
-    />
-    <div class="process-cpu" v-if="processCpuTime !== null">
-      <div class="process-cpu-time">
-        Processes with high CPU utilization at {{ processCpuTime.toLocaleString() }}:
+  <main class="m-0 p-0">
+    <div class="container-fluid m-0 p-0">
+      <div class="row m-0 p-0">
+        <div class="col-12 m-0 p-0 d-flex flex-row justify-content-end align-items-center">
+          <div class="dropdown-center duration-selector" v-if="durations.length > 0">
+            <button
+              class="btn btn-primary dropdown-toggle duration-selector-btn"
+              type="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              Last {{ durations[selectedDurationIndex].name }}
+            </button>
+            <ul class="dropdown-menu">
+              <li v-for="(duration, index) in durations" :key="index">
+                <a class="dropdown-item" href="#" @click="durationSelected(index)">
+                  Last {{ duration.name }}
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
       </div>
-      <div class="process-cpu-table-container">
-        <table class="table process-cpu-table table-striped table-light table-sm">
-          <thead>
-            <tr>
-              <th class="column-pid">PID</th>
-              <th class="column-name">Name</th>
-              <th class="column-cpu"><span class="process-cpu-mean">CPU</span></th>
-            </tr>
-          </thead>
-          <tbody class="table-group-divider">
-            <tr v-for="record in processCpuRecords" :key="record.pid">
-              <td class="column-pid">{{ record.pid }}</td>
-              <td class="column-name">{{ record.name }}</td>
-              <td class="column-cpu">
-                <span class="process-cpu-mean">{{ record.cpu_mean.toFixed(1) }}%</span>
-                <span class="process-cpu-min">
-                  ({{ record.cpu_min.toFixed(1) }}% 〜 {{ record.cpu_max.toFixed(1) }}%)
-                </span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+
+      <div class="row m-0 p-0">
+        <div class="col-12 m-0 p-0">
+          <plotly-component
+            class="plotly-component"
+            :dataset="cpuData"
+            :layout="cpuLayout"
+            :config="commonConfig"
+            @plotly_click="plotly_click"
+          />
+        </div>
+      </div>
+    </div>
+
+    <div class="row m-0 p-0">
+      <div class="col-lg-6 m-0 p-0">
+        <plotly-component
+          class="plotly-component"
+          :dataset="memData"
+          :layout="memLayout"
+          :config="commonConfig"
+          @plotly_click="plotly_click"
+        />
+      </div>
+      <div class="col-lg-6 m-0 p-0">
+        <plotly-component
+          class="plotly-component"
+          :dataset="diskData"
+          :layout="diskLayout"
+          :config="commonConfig"
+          @plotly_click="plotly_click"
+        />
+      </div>
+    </div>
+
+    <div class="row m-0 p-0">
+      <div class="col-12 m-0 p-0">
+        <div class="process-cpu" v-if="processCpuTime !== null">
+          <div class="process-cpu-time">
+            Processes with high CPU utilization at {{ processCpuTime.toLocaleString() }}:
+          </div>
+          <div class="process-cpu-table-container">
+            <table class="table process-cpu-table table-striped table-light table-sm">
+              <thead>
+                <tr>
+                  <th class="column-pid">PID</th>
+                  <th class="column-name">Name</th>
+                  <th class="column-cpu"><span class="process-cpu-mean">CPU</span></th>
+                </tr>
+              </thead>
+              <tbody class="table-group-divider">
+                <tr v-for="record in processCpuRecords" :key="record.pid">
+                  <td class="column-pid">{{ record.pid }}</td>
+                  <td class="column-name">{{ record.name }}</td>
+                  <td class="column-cpu">
+                    <span class="process-cpu-mean">{{ record.cpu_mean.toFixed(1) }}%</span>
+                    <span class="process-cpu-min">
+                      ({{ record.cpu_min.toFixed(1) }}% 〜 {{ record.cpu_max.toFixed(1) }}%)
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   </main>

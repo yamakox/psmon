@@ -14,7 +14,11 @@ onMounted(async () => {
   <div class="about">
     <h1>psmon v{{ version }}</h1>
     <p>psmon is a tool for monitoring system resources.</p>
-    <p>It is written in Vue.js and Plotly.js.</p>
+    <p>It is written in Vue 3 + Vite and Plotly.js.</p>
+    <p>
+      For more information, please see
+      <a href="https://github.com/yamakox/psmon">https://github.com/yamakox/psmon</a>
+    </p>
   </div>
 </template>
 
