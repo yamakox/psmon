@@ -4,6 +4,13 @@ import Plotly from 'plotly.js-dist'
 import axios from 'axios'
 import { ref, onMounted, onUnmounted } from 'vue'
 
+// MARK: color mode
+const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+const isDark = ref<boolean>(mediaQuery.matches)
+function updateIsDark(event: MediaQueryListEvent) {
+  isDark.value = event.matches
+}
+
 // MARK: durations
 
 const durations = ref<
@@ -268,6 +275,7 @@ let intervalId: number | null = null
 
 onMounted(async () => {
   console.log('HomeView: onMounted')
+  mediaQuery.addEventListener('change', updateIsDark)
   try {
     durations.value = (await axios.get('/api/v1/monitor/durations')).data
     ;(await fetchData()) && (await fetchProcessCpuRecords())
@@ -288,6 +296,7 @@ onMounted(async () => {
 
 onUnmounted(() => {
   console.log('HomeView: onUnmounted')
+  mediaQuery.removeEventListener('change', updateIsDark)
   if (intervalId !== null) {
     clearInterval(intervalId)
     intervalId = null
@@ -361,7 +370,9 @@ onUnmounted(() => {
             Processes with high CPU utilization at {{ processCpuTime.toLocaleString() }}:
           </div>
           <div class="process-cpu-table-container">
-            <table class="table process-cpu-table table-striped table-light table-sm">
+            <table
+              :class="`table process-cpu-table table-striped ${isDark ? 'table-dark' : 'table-light'} table-sm`"
+            >
               <thead>
                 <tr>
                   <th class="column-pid">PID</th>
