@@ -21,9 +21,9 @@ async def lifespan(app: FastAPI):
     # app開始時の初期化処理
     global scheduler
     database.init()
-    collect_metrics(interval=.1)    # 1回目のcpu_percentのキャッシュ用
+    collect_metrics(True)   # 初回のcpu_percentのキャッシュ用
     scheduler = BackgroundScheduler()
-    scheduler.add_job(collect_metrics, trigger=IntervalTrigger(seconds=1))
+    scheduler.add_job(collect_metrics, trigger=IntervalTrigger(seconds=settings.METRICS_INTERVAL))
     scheduler.start()
 
     # app実行中
