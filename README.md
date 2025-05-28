@@ -11,7 +11,7 @@
 ```bash
 git clone https://github.com/yamakox/psmon.git
 cd psmon/
-cp .env.example .env   # please change the environment variables
+cp .env.example .env   # please change the environment variables before building container image
 docker compose build --no-cache
 docker compose up -d
 ```
@@ -28,6 +28,7 @@ You can change `.env` file to configure your environment. For more information a
 - VITE_PORT: A port number of Vite server"
 - ROOTFS_PATH: A directory in this app's container to mount the host's root directory (`/`)
 - TOP_PROCESS_COUNT: A number of processes for recording and reporting
+- METRICS_INTERVAL: A time interval (in seconds) for recording system metrics
 - INFLUXDB_PORT: A port number to publish InfluxDB's port
 - INFLUXDB_INIT_MODE: InfluxDB's mode: `setup` or `upgrade`
 - INFLUXDB_INIT_USERNAME: A name for your initial admin user⁠
