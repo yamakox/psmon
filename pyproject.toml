@@ -1,6 +1,6 @@
 [project]
 name = "psmon"
-version = "0.1.0"
+dynamic = ["version"]
 description = "Process and System Monitor"
 authors = [
     {name = "yamakox",email = "yamakox@gmail.com"}
@@ -18,18 +18,28 @@ dependencies = [
 ]
 
 [tool.poetry]
+version = "0.0.0"
+packages = [
+    {include = "backend", from="."}
+]
+
 # HowTo: https://python-poetry.org/docs/basic-usage/#operating-modes
 # same as `poetry install --no-root`
-package-mode = false
+#package-mode = false
 
 [tool.poetry.group.dev.dependencies]
 debugpy = "^1.8.14"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"
+#build-backend = "poetry.core.masonry.api"
+
+# poetry_dynamic_versioning (https://pypi.org/project/poetry-dynamic-versioning/)
+# This is a thin wrapper around `poetry.core.masonry.api`.
+build-backend = "poetry_dynamic_versioning.backend"
 
 [tool.poetry.requires-plugins]
-# 忘れがちだが、以下の行を追加しないとpoetry exportが使えずrequirements.txtを生成できない。
-# 以下の行を追加したら、`poetry install --no-root`を実行すること。
-poetry-plugin-export = ">=1.8"
+poetry-dynamic-versioning = { version = ">=1.0.0,<2.0.0", extras = ["plugin"] }
+
+[tool.poetry-dynamic-versioning]
+enable = true

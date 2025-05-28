@@ -8,7 +8,6 @@ docker-compose.*
 .markdownlint.json
 .gitignore
 .python-version
-.git/
 .poetry/
 .venv/
 .vscode/
