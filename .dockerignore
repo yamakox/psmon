@@ -1,7 +1,11 @@
 Dockerfile
+Dockerfile.*
+docker-compose.*
 .dockerignore
 .editorconfig
 .env
+.env.example
+.markdownlint.json
 .gitignore
 .python-version
 .git/

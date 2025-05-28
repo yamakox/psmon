@@ -8,18 +8,18 @@ import time
 # see also: https://www.reddit.com/r/docker/comments/mo9wq5/accessing_host_resources_from_inside_a_container/
 psutil.PROCFS_PATH = str(Path(settings.ROOTFS_PATH) / 'proc')
 
-def collect_metrics():
+def collect_metrics(interval: float = None):
     '''psutilで取得したデータをDBに保存する。'''
     t = time.time_ns()
     database.write_system_stats_record(
         t,
-        cpu_percent=psutil.cpu_percent(), 
+        cpu_percent=psutil.cpu_percent(interval=interval), 
         mem_available=float(psutil.virtual_memory().available), 
         disk_used=float(psutil.disk_usage(settings.ROOTFS_PATH).used), 
     )
     database.write_process_cpu_record(
         t,
-        _get_top_cpu_processes(),
+        _get_top_cpu_processes(interval=interval),
     )
 
 def get_mem_total():
@@ -30,17 +30,16 @@ def get_disk_total():
     '''ディスクの総容量を取得する。'''
     return psutil.disk_usage(settings.ROOTFS_PATH).total
 
-def _get_top_cpu_processes() -> list[tuple[float, int, str]]:
+def _get_top_cpu_processes(interval: float = None) -> list[tuple[float, int, str]]:
     '''CPU使用率が高いプロセスを取得する。
 
     Returns:
         list[tuple[float, int, str]]: プロセスのCPU使用率、PID、プロセス名
     '''
-    # 1回目の呼び出し（キャッシュ用）
     process_list = []
     for proc in psutil.process_iter(['pid', 'name']):
         try:
-            cpu_percent = proc.cpu_percent(interval=None)
+            cpu_percent = proc.cpu_percent(interval=interval)
             process_list.append((cpu_percent, proc.pid, proc.name()))
         except (psutil.NoSuchProcess, psutil.AccessDenied):
             continue

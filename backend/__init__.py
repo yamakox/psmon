@@ -1,3 +1,5 @@
+__version__ = '0.0.0'
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -19,6 +21,7 @@ async def lifespan(app: FastAPI):
     # app開始時の初期化処理
     global scheduler
     database.init()
+    collect_metrics(interval=.1)    # 1回目のcpu_percentのキャッシュ用
     scheduler = BackgroundScheduler()
     scheduler.add_job(collect_metrics, trigger=IntervalTrigger(seconds=1))
     scheduler.start()
