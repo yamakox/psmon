@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import Plotly from 'plotly.js-dist'
+import Plotly from 'plotly.js-dist-min'
 
 // MARK: constants
 
@@ -9,7 +9,7 @@ const DEBUG = false
 // MARK: properties
 
 const props = defineProps<{
-  dataset?: Plotly.Data[]
+  data?: Plotly.Data[]
   layout?: Partial<Plotly.Layout>
   config?: Partial<Plotly.Config>
 }>()
@@ -66,8 +66,8 @@ const debugLog = DEBUG
   : (message: string, event?: any) => {}
 
 async function setupPlot() {
-  if (rootRef.value && props.dataset) {
-    const element = await Plotly.react(rootRef.value, props.dataset, props.layout, props.config)
+  if (rootRef.value && props.data) {
+    const element = await Plotly.react(rootRef.value, props.data, props.layout, props.config)
     if (plotlyHTMLElement !== element) {
       plotlyHTMLElement = element
       plotlyHTMLElement.on('plotly_click', (event: Plotly.PlotMouseEvent) => {

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import PlotlyComponent from '../components/Plotly.vue'
-import Plotly from 'plotly.js-dist'
+import Plot from '../components/Plot.vue'
+import Plotly from 'plotly.js-dist-min'
 import axios from 'axios'
 import { ref, onMounted, onUnmounted } from 'vue'
 
@@ -260,7 +260,7 @@ async function fetchData() {
 
 // MARK: event handlers
 
-async function plotly_click(event: Plotly.PlotMouseEvent) {
+async function plotlyClick(event: Plotly.PlotMouseEvent) {
   console.log('HomeView: plotly_click', event)
   const point = event.points?.shift()
   if (point === undefined) {
@@ -331,12 +331,12 @@ onUnmounted(() => {
 
       <div class="row m-0 p-0">
         <div class="col-12 m-0 p-0">
-          <plotly-component
-            class="plotly-component"
-            :dataset="cpuData"
+          <plot
+            class="plot"
+            :data="cpuData"
             :layout="cpuLayout"
             :config="commonConfig"
-            @plotly_click="plotly_click"
+            @plotly_click="plotlyClick"
           />
         </div>
       </div>
@@ -344,21 +344,21 @@ onUnmounted(() => {
 
     <div class="row m-0 p-0">
       <div class="col-lg-6 m-0 p-0">
-        <plotly-component
-          class="plotly-component"
-          :dataset="memData"
+        <plot
+          class="plot"
+          :data="memData"
           :layout="memLayout"
           :config="commonConfig"
-          @plotly_click="plotly_click"
+          @plotly_click="plotlyClick"
         />
       </div>
       <div class="col-lg-6 m-0 p-0">
-        <plotly-component
-          class="plotly-component"
-          :dataset="diskData"
+        <plot
+          class="plot"
+          :data="diskData"
           :layout="diskLayout"
           :config="commonConfig"
-          @plotly_click="plotly_click"
+          @plotly_click="plotlyClick"
         />
       </div>
     </div>
@@ -401,7 +401,7 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-.plotly-component {
+.plot {
   height: 200px;
 }
 .duration-selector {
