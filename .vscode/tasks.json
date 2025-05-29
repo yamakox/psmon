@@ -55,7 +55,7 @@
       "options": {
         "cwd": "${workspaceFolder}"
       },
-      "command": "docker compose -f docker-compose.debug.yml build  && docker compose -f docker-compose.debug.yml up"
+      "command": "docker compose -f docker-compose.dev.yml build  && docker compose -f docker-compose.dev.yml up"
     },
     {
       "label": "T020.1: デバッグモードのコンテナでVITE起動",
@@ -63,7 +63,7 @@
       "options": {
         "cwd": "${workspaceFolder}"
       },
-      "command": "docker compose -f docker-compose.debug.yml exec -it app sh -c \"cd frontend && npm i && npm run dev\""
+      "command": "docker compose -f docker-compose.dev.yml exec -it app sh -c \"cd frontend && npm i && npm run dev\""
     },
     {
       "label": "T020.2: デバッグ中のappサービスのシェルを開く",
@@ -71,7 +71,7 @@
       "options": {
         "cwd": "${workspaceFolder}"
       },
-      "command": "docker compose -f docker-compose.debug.yml exec -it app sh"
+      "command": "docker compose -f docker-compose.dev.yml exec -it app sh"
     },
     {
       "label": "T021: デバッグモードのコンテナ停止",
@@ -79,7 +79,7 @@
       "options": {
         "cwd": "${workspaceFolder}"
       },
-      "command": "docker compose -f docker-compose.debug.yml down # 省略: --rmi local"
+      "command": "docker compose -f docker-compose.dev.yml down # 省略: --rmi local"
     },
     {
       "label": "T022: デバッグモードでローカル起動",
