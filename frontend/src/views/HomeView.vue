@@ -1,8 +1,15 @@
 <script setup lang="ts">
-import Plot from '../components/Plot.vue'
+import Plot from '@yamakox/vue3-plotly'
 import Plotly from 'plotly.js-dist-min'
 import axios from 'axios'
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, /* useTemplateRef, */ onMounted, onUnmounted } from 'vue'
+// import type { ComponentExposed } from 'vue-component-type-helpers'
+
+// const cpuPlot = useTemplateRef<ComponentExposed<typeof Plot>|null>('cpuPlot')
+
+// MARK: constants
+
+const DEBUG = import.meta.env.DEV
 
 // MARK: color mode
 const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
@@ -157,13 +164,17 @@ async function fetchData() {
       mem_total = res.data.mem_total
       disk_total = res.data.disk_total
       records = res.data.records
-      dataSeries.time = records.time.map((time: string) => new Date(time))
-      dataSeries.cpu_percent_max = records.cpu_percent_max
-      dataSeries.cpu_percent_mean = records.cpu_percent_mean
-      dataSeries.mem_available_max = records.mem_available_max
-      dataSeries.mem_available_mean = records.mem_available_mean
-      dataSeries.disk_used_max = records.disk_used_max
-      dataSeries.disk_used_mean = records.disk_used_mean
+      if (records.time?.length > 0) {
+        dataSeries.time = records.time.map((time: string) => new Date(time))
+        dataSeries.cpu_percent_max = records.cpu_percent_max
+        dataSeries.cpu_percent_mean = records.cpu_percent_mean
+        dataSeries.mem_available_max = records.mem_available_max
+        dataSeries.mem_available_mean = records.mem_available_mean
+        dataSeries.disk_used_max = records.disk_used_max
+        dataSeries.disk_used_mean = records.disk_used_mean
+      } else {
+        return
+      }
     } else {
       const res = await axios.get('/api/v1/monitor', {
         params: {
@@ -274,7 +285,7 @@ async function plotlyClick(event: Plotly.PlotMouseEvent) {
 let intervalId: number | null = null
 
 onMounted(async () => {
-  console.log('HomeView: onMounted')
+  DEBUG && console.log('HomeView: onMounted')
   mediaQuery.addEventListener('change', updateIsDark)
   try {
     durations.value = (await axios.get('/api/v1/monitor/durations')).data
@@ -295,7 +306,7 @@ onMounted(async () => {
 })
 
 onUnmounted(() => {
-  console.log('HomeView: onUnmounted')
+  DEBUG && console.log('HomeView: onUnmounted')
   mediaQuery.removeEventListener('change', updateIsDark)
   if (intervalId !== null) {
     clearInterval(intervalId)
@@ -336,7 +347,7 @@ onUnmounted(() => {
             :data="cpuData"
             :layout="cpuLayout"
             :config="commonConfig"
-            @plotly_click="plotlyClick"
+            @click="plotlyClick"
           />
         </div>
       </div>
@@ -349,7 +360,7 @@ onUnmounted(() => {
           :data="memData"
           :layout="memLayout"
           :config="commonConfig"
-          @plotly_click="plotlyClick"
+          @click="plotlyClick"
         />
       </div>
       <div class="col-lg-6 m-0 p-0">
@@ -358,7 +369,7 @@ onUnmounted(() => {
           :data="diskData"
           :layout="diskLayout"
           :config="commonConfig"
-          @plotly_click="plotlyClick"
+          @click="plotlyClick"
         />
       </div>
     </div>
