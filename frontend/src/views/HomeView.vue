@@ -138,6 +138,7 @@ function toTeraBytes(bytes: number) {
 // MARK: state management
 
 const isLoading = ref<boolean>(false)
+const metricsInterval = ref<number>(0)
 
 // MARK: fetch data
 
@@ -289,6 +290,7 @@ onMounted(async () => {
   mediaQuery.addEventListener('change', updateIsDark)
   try {
     durations.value = (await axios.get('/api/v1/monitor/durations')).data
+    metricsInterval.value = (await axios.get('/api/v1/monitor/metrics-interval')).data
     ;(await fetchData()) && (await fetchProcessCpuRecords())
     if (intervalId !== null) {
       clearInterval(intervalId)
@@ -319,7 +321,11 @@ onUnmounted(() => {
   <main class="m-0 p-0" :data-bs-theme="isDark ? 'dark' : 'light'">
     <div class="container-fluid m-0 p-0">
       <div class="row m-0 p-0">
-        <div class="col-12 m-0 p-0 d-flex flex-row justify-content-end align-items-center">
+        <div class="col-12 m-0 p-0 d-flex flex-row justify-content-between align-items-center">
+          <div class="metrics-interval-container" v-if="metricsInterval > 0">
+            <span class="metrics-interval-label">Metrics Interval:</span>
+            <span class="metrics-interval-value">{{ metricsInterval }}s</span>
+          </div>
           <div class="dropdown-center duration-selector" v-if="durations.length > 0">
             <button
               class="btn btn-primary dropdown-toggle duration-selector-btn"
@@ -414,6 +420,17 @@ onUnmounted(() => {
 <style scoped>
 .plot {
   height: 200px;
+}
+.metrics-interval-container {
+  margin: 4px 8px;
+}
+.metrics-interval-label {
+  margin: 0 8px 0 0;
+  white-space: nowrap;
+}
+.metrics-interval-value {
+  margin: 0 8px 0 0;
+  white-space: nowrap;
 }
 .duration-selector {
   margin: 4px 8px;

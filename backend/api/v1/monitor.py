@@ -52,8 +52,14 @@ def create_router(base_path: Path) -> APIRouter:
     # MARK: /api/v1/monitor/durations
     @router.get('/durations', response_model=list[settings.Duration])
     def get_durations():
-        '''モニタリングの時間間隔のリストを取得する。'''
+        '''モニタリング期間のリストを取得する。'''
         return settings.DURATIONS
+
+    # MARK: /api/v1/monitor/metrics-interval
+    @router.get('/metrics-interval', response_model=int)
+    def get_metrics_interval():
+        '''システム情報の測定間隔を取得する。'''
+        return settings.METRICS_INTERVAL
 
     # MARK: /api/v1/monitor/json
     @router.get('/json', response_model=MonitorResponse)
